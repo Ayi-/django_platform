@@ -1,0 +1,25 @@
+<div class="datatables_wrapper">
+
+
+    <table class="table dataTable  /*table-condensed*/ table-hover /*table-bordered*/" width="100%"   style="width: 100%"
+           id="example">
+
+        <thead>
+        <tr>
+            {% for th in order_columns %}
+                <th>{{ th.verbose_name }}</th>
+            {% endfor %}
+
+
+        </tr>
+        </thead>
+        <tfoot >
+        <tr >
+            {% for th in order_columns %}
+                <th ></th>
+            {% endfor %}
+        </tr>
+        </tfoot>
+        <tbody></tbody>
+    </table>
+</div>

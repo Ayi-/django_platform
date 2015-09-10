@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    {% block title %}
+        <title>公众平台</title>
+    {% endblock title %}
+
+
+    <!-- Bootstrap Core CSS -->
+    <link href="{{ static("css/bootstrap.min.css") }}" rel="stylesheet">
+
+
+    <!-- MetisMenu CSS -->
+    <link href="{{ static("css/metisMenu.min.css") }}" rel="stylesheet">
+
+    <!-- Timeline CSS
+    <link href="./dist/css/timeline.css" rel="stylesheet">
+    -->
+    <!-- DataTables CSS -->
+    {#    <link type="text/css" href="{{ static("css/jquery.dataTables.css") }}" rel="stylesheet">#}
+
+    <link type="text/css" href="{{ static('css/dataTables.bootstrap.css') }}" rel="stylesheet">
+    <link type="text/css" href="{{ static('css/dataTables.fixedHeader.css') }}" rel="stylesheet">
+    <link type="text/css" href="{{ static('css/dataTables.responsive.css') }}" rel="stylesheet">
+    <link type="text/css" href="{{ static('css/dataTables.colVis.css') }}" rel="stylesheet">
+    <link type="text/css" href="{{ static('css/dataTables.colReorder.css') }}" rel="stylesheet">
+
+
+    <!-- Custom CSS -->
+    <link href="{{ static("css/sb-admin-2.css") }}" rel="stylesheet">
+
+
+    <!-- Custom Fonts -->
+    <link href="{{ static('css/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
+
+    {% block css %}
+    {% endblock css %}
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+
+<div id="wrapper">
+
+    <!-- Navigation -->
+    {% include 'nav.html' %}
+
+
+    <div id="page-wrapper">
+        {% block pageWrapper %}
+
+        {% endblock pageWrapper %}
+    </div>
+    <!-- /#page-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
+<!-- jQuery -->
+<script type="text/javascript" charset="utf8" src="{{ static("js/jquery.min.js") }}"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="{{ static("js/bootstrap.min.js") }}"></script>
+
+
+<!-- DataTables JavaScript -->
+
+
+<!-- Custom Theme JavaScript -->
+
+<!-- Morris Charts JavaScript
+<script src="./bower_components/raphael/raphael-min.js"></script>
+<script src="./bower_components/morrisjs/morris.min.js"></script>
+<script src="./js/morris-data.js"></script>
+-->
+<script src="{{ static('js/sb-admin-2.js') }}"></script>
+
+<!-- control the menu with metisMenu-->
+<script src="{{ static('js/metisMenu.min.js') }}"></script>
+
+
+<!-- DataTables JavaScript -->
+
+<script type="text/javascript" charset="utf8" src="{{ static('js/jquery.dataTables.min.js')}}"></script>
+<script type="text/javascript" charset="utf8" src="{{ static('js/dataTables.bootstrap.min.js') }}"></script>
+<script src="{{ static('js/dataTables.keyTable.js') }}"></script>
+<script src="{{ static('js/dataTables.fixedHeader.js') }}"></script>
+<script src="{{ static('js/dataTables.colReorder.js') }}"></script>
+<script src="{{ static('js/dataTables.responsive.js') }}"></script>
+<script src="{{ static('js/dataTables.colVis.js') }}"></script>
+
+{% block script %}{% endblock script %}
+
+
+<!-- Metis Menu Plugin JavaScript -->
+<script>
+    $("#menu").metisMenu({
+        toggle: true,
+        doubleTapToGo: true
+    });
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("[href='{{ url('ajax_tem') }}']").click(function () { // catch the form's submit event
+            $.ajax({ // create an AJAX call...
+                data: {'name': $(this).attr('name')}, // get the form data
+                //type: 'GET', // GET or POST
+                url: $(this).attr('href'), // the file to call; send the data to server
+                success: function (responseData) { // on success.. get respose from the server
+                    var ob = responseData.ob;
+                    var oColumns = responseData.columns;
+                    $('#page-wrapper').html(responseData.content_html);             // update the DIV with response
+                    var oTable = $('#example').DataTable({
+                        serverSide: true,
+                        processing: true,
+
+                        //"stateSave": true,//状态保存
+                        //"deferRender": true,//延迟渲染
+                        //设置滚动条
+                        //xxxcxx,'scrollY': 1000,
+                        //"scrollCollapse": true,
+                        //"scrollX":true,
+                        //"autowidth": false,
+                        "responsive": true,
+                        "language": {
+                            "url": "{{ static('dataTables.chinese.lang') }}"
+                        },
+                        "ajax": {
+                            "url": "{{ url('ajax-dict')  }} ",
+                            "type": 'post'
+
+                        },
+                        "rowCallback": function (row, data, index) {
+
+                        },
+                        {#                        行设置#}
+                        "createdRow": function (row, data, dataIndex) {
+
+                            if (ob == 'eqstate') {
+
+                                var state = data['state'];
+                                if (state == 0) {
+                                    $(row).addClass('success');
+                                }
+                                else if (state == 1) {
+                                    $(row).addClass('info');
+                                }
+                                else if (state == 2) {
+                                    $(row).addClass('warning');
+                                }
+                                else if (state == 3) {
+                                    $(row).addClass('danger');
+                                }
+
+                            }
+                            else if (ob == 'equip') {
+                                rf = data['rent_flag'];
+                                mf = data['maintenance_flag'];
+                                if (rf == false && mf == false) {
+                                    $(row).addClass('success');
+                                }
+                                else if (rf == true && mf == false) {
+                                    $(row).addClass('warning');
+                                }
+                                else if (rf == false && mf == true) {
+                                    $(row).addClass('info');
+                                }
+                                else if (rf == true && mf == true) {
+                                    $(row).addClass('danger');
+                                }
+                            }
+
+                        },
+                        {#                        列设置#}
+                        "columnDefs": [
+
+                            { "width": "20%", "targets": [-3] },
+                            {className: "textCenter", "targets": ''},
+                            {
+                                "targets": '_all',
+                                "createdCell": function (td, cellData, rowData, row, col) {
+                                    {#                                如果targets为多个，参数则为多组，处理为从左往右，从上到下循环#}
+                                    {#                                每一组#}
+                                    {#                                td为当前td元素#}
+                                    {#                                cellData 当前单元数据#}
+                                    {#                                rowData为当前行所有数据#}
+                                    {#                                row为当前行索引(从0开始)#}
+                                    {#                                col为当前列索引(从0开始)#}
+
+                                    {#                                if (ob == 'equip')#}
+                                    {#                                {#}
+                                    {#                                 if (col == 5 || col == 6) #}
+                                    {#                                 {#}
+                                    {#                                    if (cellData == true) {#}
+                                    {#                                        $(td).addClass('warning')#}
+                                    {#                                    }#}
+                                    {#                                    else {#}
+                                    {#                                        $(td).addClass('danger')#}
+                                    {#                                    }#}
+                                    {##}
+                                    {#                                 }#}
+                                    {#                                }#}
+                                    if (ob == 'equip') {
+                                        if (col == 9) {
+                                            $(td).addClass('control');
+                                            $(td).html('<div class="Details">' + cellData.substr(0,10) +'...'+ '</div>'+'<div class="innerDetails">' + cellData + '</div>');
+
+                                        }
+
+                                    }
+                                }
+                            }
+
+                        ],
+                        'columns': oColumns,
+                        //dom: 'Rlfrtip',
+                        dom: 'R<"row"<"col-sm-3" l>' +
+                        '<"col-sm-6" f>' +
+                        '<"col-sm-3" C>>' +
+
+                        '<"row" <"col-sm-12" tr>>' +
+
+                        '<"row"<"col-sm-6" i>' +
+
+                        '<"col-sm-6" p>>',
+                        colVis: {
+                            activate: "mouseover",
+                            buttonText: "显示列表",
+                            "align": "left"
+                        },
+                        "initComplete": function () {
+
+                            $('div.dataTables_filter  input').unbind('keyup search input');
+                            $(".dataTables_filter  input").keyup(function (e) {
+                                if (e.keyCode == 13) {
+                                    oTable.fnFilter(this.value)
+                                }
+                            });
+
+                            new $.fn.dataTable.FixedHeader(oTable);
+
+                            // Setup - add a text input to each footer cell
+                            $('#example tfoot th').each(function () {
+                                var title = $('#example thead th').eq($(this).index()).text();
+                                $(this).html('<input type="text" placeholder="搜索 ' + title + '" />');
+                            });
+
+
+                            // Apply the search
+                            oTable.columns().every(function () {
+                                var that = this;
+
+                                $('input', this.footer()).keyup(function (e) {
+                                    if (e.keyCode == 13) {
+                                        that
+                                                .search(this.value)
+                                                .draw();
+                                    }
+
+                                });
+                            });
+                        }
+
+                    });
+                    {#                    点击事件,显示点击到的单元的数据#}
+                    {#                    $('#example tbody').on('click', 'td', function () {#}
+                    {#                        alert('Clicked on: ' + this.innerHTML);#}
+                    {#                    });#}
+
+                    $('#example').addClass('KeyTable');
+                    new $.fn.dataTable.KeyTable();
+
+                    {##}
+                    {#                                        //30s重置#}
+                    {#                                        setInterval(function () {#}
+                    {#                                            oTable.ajax.reload(null, false); // 刷新表格数据，分页信息不会重置#}
+                    {#                                        }, 10000);#}
+
+                    $('.FixedHeader_Cloned').remove();
+                    $(window).resize(function () {
+                        $('.FixedHeader_Cloned').remove();
+                        new $.fn.dataTable.FixedHeader(oTable);
+                    });
+                    $('tbody').attr('role', "alert", 'aria-live', "polite", 'aria-relevant', "all")
+                            .attr('aria-live', "polite")
+                            .attr('aria-relevant', "all");
+
+                    var i = 0;
+                    if (ob == 'equip') {
+                    $("#example ").on('click', 'td', function () {
+                        var nTr = this.parentNode;
+
+                        if (i == 0) {
+                            $('div.innerDetails', $(nTr)).slideDown();
+                            $('div.Details', $(nTr)).slideUp();
+                            i = 1;
+                        }
+                        else {
+
+                            $('div.innerDetails', $(nTr)).slideUp();
+                            $('div.Details', $(nTr)).slideDown();
+                            i = 0;
+                        }
+                    })
+                    }
+                }
+            });
+
+
+            return false;   //avoid submitting the content to server directly
+        });
+
+    });
+
+
+</script>
+</body>
+
+</html>
